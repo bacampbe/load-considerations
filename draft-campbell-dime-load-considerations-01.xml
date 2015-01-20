@@ -287,7 +287,8 @@
 		</t>
 		<t>
 			The author's opinion is that the load level of a Diameter node will usually apply to the whole node. Thus,
-			the working group should consider a single "whole node" scope for load information. Alternatively,
+			the working group should consider a single "whole node" scope for load information. Alternatively,   
+
 			a "per-connection" scope could simulate "whole node" scope without requiring the recipient to pay attention to
 			whether multiple transport connections terminate at the same peer.
 		</t>
