@@ -340,6 +340,160 @@
 			did not match the identity of the peer node.
 		</t>
 	</section>
+	<section anchor="scenarios" title="Topology Scenarios">
+		<t>
+			This section presents a number of Diameter topology scenarios, and discusses how load information
+			might be used in each scenario. Nothing in this section should be construed to mean that a given scenario
+			is in scope for this effort, or even a good idea.
+		</t>
+		<t>
+			<xref target="simple-CS" /> shows a simple client-server scenario, where a client picks
+			from a set of candidate servers available for a particular realm and application. The client
+			selects the server for a given transaction using the load information received from each server.
+		</t>
+<figure title="Simple Client Server Scenario" anchor="simple-CS">
+<artwork><![CDATA[
+ 	------S1
+  /
+C
+  \
+	------S2
+]]>
+</artwork>
+</figure>
+		<t>
+			<list>
+				<t>
+					Open Issue: Will a Diameter node include potential peers that it is not 
+					currently connected to as part of the candidate set? It is unlikely the client
+					would have load information from peers that it is not currently connected to.
+				</t>
+			</list>
+		</t>
+        <t>
+        	<xref target="simple-agent" /> shows a client that sends requests to an agent. The agent selects 
+			the request destination from a set of candidate servers, using load information received from
+			each server. The client does not need to receive load information, since it does not select
+			between multiple agents.
+        </t>
+<figure title="Simple Agent Scenario" anchor="simple-agent">
+<artwork><![CDATA[
+ 		 ------S1
+	   /
+C----A
+	   \
+		 ------S2
+		    	]]>
+</artwork>
+</figure>
+		<t>
+			<xref target="multi-agent" /> shows a client selecting between multiple agents, and each agent
+			selecting from multiple servers. The client selects an agent based on the load information
+			received from each agent. Each agent selects a server based on the load information received
+			from its servers.
+		</t>
+		<t>
+			This scenario adds a complication that one set of servers may be more loaded than the other set. If,
+			for example, S4 was the least loaded server, C would need to know to select agent A2 to reach S4.
+			This might require C to receive load information from the servers as well as the agents.
+			Alternatively, each agent might use the load of its servers as an input into calculating its
+			own load, in effect aggregating upstream load.			
+		</t>
+		<t>
+			Similarly, if C sends a <xref target="I-D.ietf-dime-ovli">host-routed request</xref>, it needs
+			to know which agent can deliver requests to the selected server. Without
+			some special, potentially proprietary, knowledge of the topology upstream of A1 and A2, C
+			would select the agent based on the normal peer selection procedures for the realm and application, and
+			perhaps consider the load information from A1 and A2. If C sends a request
+			to A1 that contains a Destination-Host AVP with a value of S4, 
+			A1 will not be able to deliver the request.
+		</t>
+<figure title="Multiple Agents and Servers" anchor="multi-agent">
+<artwork><![CDATA[
+	     -----S3
+	   /
+   ---A1------S1
+ /    
+C     
+ \    
+   ---A2------S2
+	   \
+	     ---- S4
+]]>
+</artwork>
+</figure>
+		<t>
+			<xref target="linked-agents" /> shows a scenario similar to that of <xref target="multi-agent" />,
+			except that the agents are linked, so that A1 can forward a request to A2, and vice-versa.
+			Each agent could receive load information from the linked agent, as well as its connected servers.
+		</t>
+		<t>
+			This somewhat simplifies the complication from <xref target="multi-agent" />, due to the fact
+			that C does not necessarily need to choose a particular agent to reach a particular server.
+			But it creates a similar question of how, for example, A1 might know that S4 was less loaded than
+			S1 or S3. Additionally, it creates the opportunity for sub-optimal request paths. For example
+			[C,A1,A2,S4] vs. [C,A2,S4].
+		</t>
+		<t>
+			A likely application for linked agents is when each agent prefers one set of servers and only 
+			forwards requests to another agent under exceptional circumstances. For example, A1 might
+			not forward requests to A2 unless both S1 and S3 are overloaded. In this case, A1 might use the
+			load information from S1 and S3 to select between those, and only consider the load information
+			from A2 (and other connected agents) if it needs to divert requests to different agents.
+		</t>
+<figure title="Linked Agents" anchor="linked-agents">
+<artwork><![CDATA[
+	     -----S3
+	   /
+   ---A1------S1
+ /    |
+C     |
+ \    |
+   ---A2------S2
+	   \
+	     ---- S4
+]]>
+</artwork>
+</figure>
+		<t><xref target="shared-server-pools" /> is similar to <xref target="linked-agents" />, except
+		that instead of a link between agents, each agent is linked to all servers. (The links to each set of servers
+		should be interpreted as a link to each server. The links are not shown separately due to the limitations of 
+		ASCII art.)</t>
+		<t>In this scenario, each agent can select among all of the servers, based on the load information from the servers.
+			C need only be concerned with the load information of the agents.</t>
+<figure title="Shared Server Pools" anchor="shared-server-pools">
+<artwork>
+	<![CDATA[
+	---A1---S1, S3...S[n]
+  /      \/
+C        /\
+  \     /  \
+	---A2---S2, S4...S[n+1]
+]]>
+</artwork>
+</figure>
+<figure title="Agent Chains" anchor="agent-chains">
+<artwork><![CDATA[
+	---A1---A3----S1, S3...S(n)
+  /    | \/ |
+C      | /\ |
+  \    |/  \|
+	---A2---A4----S2, S4...S(n+1)
+]]>
+</artwork>
+</figure>
+<figure title="Full Mesh" anchor="full-mesh">
+<artwork><![CDATA[
+    ---A1---A3---S1, S3...S(n)
+  /    | \/ | \/
+C      | /\ | /\
+  \    |/  \|/  \
+	---A2---A4---S2, S4...S(n+1)
+]]>
+</artwork>
+</figure>
+		
+	</section>
 	<section anchor="security" title="Security Considerations">
 		<t>
 			Load information may be sensitive information in some cases. Depending on the mechanism. an unauthorized recipient
