@@ -76,6 +76,13 @@
 <!-- uri and facsimile elements may also be added -->
       </address>
     </author>
+	<author fullname = "Jean-Jacques Trottin" initials="J.J."
+		surname="Trottin">
+		<organization>Alcatel-Lucent</organization>
+		<address>
+			<email>jean-jacques.trottin@alcatel-lucent.com</email>
+		</address>	
+		</author>
     <date month="October" year="2014" />
 <!-- If the month and year are both specified and are the current ones, xml2rfc will fill
   in the current day for you. If only the current year is specified, xml2rfc will fill
