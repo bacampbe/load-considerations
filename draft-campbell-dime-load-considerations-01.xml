@@ -232,6 +232,18 @@
 		</t>
 	</section>
 	<section anchor="p2p-e2e" title="Which Nodes Exchange Load Information?">
+		<t><xref target="scenarios" /> illustrates a number of Diameter network topologies
+		where load information may be useful. However, there are potentially limitless 
+		configurations where load information might be used to make peer and server selection 
+		choices. Nodes may 
+		be unaware of the topology beyond their immediate peers, limiting the utility of load 
+		information for nodes beyond that peer.</t>
+		<t> There may in fact be scenarios where a peer-selection decision is impacted
+			by the load of non-adjacent nodes, or where a node needs to force selection of
+			a particular non-adjacent server. While explicit knowledge of the load of such
+			non-adjacent nodes may be useful in such decisions, the working group
+			should consider whether this utility is worth the added complexity.</t>	 	
+
 		<t> Previous load related efforts have made different assumptions about which
 			Diameter nodes exchange load information.
 		</t>
@@ -264,10 +276,29 @@
 			Any-to-Any transmission offers more flexibility, and could potentially cover the case where server 
 			selection is done by nodes that
 			are not peers to the candidate servers.
-		</t> 	
+		</t>
 			
 	</section>
 	<section anchor="scope" title="Scope of Load Information">
+		<t>Load information could refer to several different scopes:</t>
+		<t>
+			<list style="symbols">
+				<t>Load of a Node -- The load information refers to the load for an entire Diameter host, that is
+					a Client, Agent, or Server described by a Diameter Identity. </t>
+				<t>
+					Load of an Application -- The load for a specific Diameter node that supports multiple
+					Diameter applications might differ between applications.
+				</t>
+				<t>
+					Load of a set of nodes
+				</t>
+				<t>
+					Aggregate Load -- Different paths via different agents may exist between a node making a peer
+					selection decision and the final destination of the request. The least loaded destination
+					may only be reachable via certain peers. 
+				</t>   
+			</list>
+		</t>
 		<t>The "scope" of load information defines what the load indication applies to. For example, load could apply to a whole 
 			Diameter node, or a node could report different load for different application. It might be possible to have a load value
 			for a whole realm, or a group of nodes.
@@ -346,12 +377,13 @@
 			might be used in each scenario. Nothing in this section should be construed to mean that a given scenario
 			is in scope for this effort, or even a good idea.
 		</t>
+	<section title="No Agent">
 		<t>
 			<xref target="simple-CS" /> shows a simple client-server scenario, where a client picks
 			from a set of candidate servers available for a particular realm and application. The client
 			selects the server for a given transaction using the load information received from each server.
 		</t>
-<figure title="Simple Client Server Scenario" anchor="simple-CS">
+<figure title="Basic Client Server Scenario" anchor="simple-CS">
 <artwork><![CDATA[
  	------S1
   /
@@ -370,6 +402,8 @@ C
 				</t>
 			</list>
 		</t>
+	</section>
+	<section title="Single Agent">
         <t>
         	<xref target="simple-agent" /> shows a client that sends requests to an agent. The agent selects 
 			the request destination from a set of candidate servers, using load information received from
@@ -386,6 +420,8 @@ C----A
 		    	]]>
 </artwork>
 </figure>
+	</section>
+	<section title="Multiple Agents">
 		<t>
 			<xref target="multi-agent" /> shows a client selecting between multiple agents, and each agent
 			selecting from multiple servers. The client selects an agent based on the load information
@@ -422,6 +458,8 @@ C
 ]]>
 </artwork>
 </figure>
+	</section>
+	<section title="Linked Agents">
 		<t>
 			<xref target="linked-agents" /> shows a scenario similar to that of <xref target="multi-agent" />,
 			except that the agents are linked, so that A1 can forward a request to A2, and vice-versa.
@@ -455,12 +493,14 @@ C     |
 ]]>
 </artwork>
 </figure>
+	</section>
+	<section title="Shared Server Pools">
 		<t><xref target="shared-server-pools" /> is similar to <xref target="linked-agents" />, except
 		that instead of a link between agents, each agent is linked to all servers. (The links to each set of servers
 		should be interpreted as a link to each server. The links are not shown separately due to the limitations of 
 		ASCII art.)</t>
 		<t>In this scenario, each agent can select among all of the servers, based on the load information from the servers.
-			C need only be concerned with the load information of the agents.</t>
+			The client need only be concerned with the load information of the agents.</t>
 <figure title="Shared Server Pools" anchor="shared-server-pools">
 <artwork>
 	<![CDATA[
@@ -472,6 +512,13 @@ C        /\
 ]]>
 </artwork>
 </figure>
+	</section>
+	<section title="Agent Chains">
+	<t>The scenario in <xref target="agent-chains" /> is similar to that of <xref target="multi-agent" />, except that,
+	instead of the client possibly needing to select an agent that can route requests to the least loaded server, in
+	this case A1 and A2 need to make similar decisions when selecting between A3 or A4. As the former scenario, this
+	could be mitigated if A3 and A4 aggregate upstream loads into the load information they report downstream.   	
+	</t>
 <figure title="Agent Chains" anchor="agent-chains">
 <artwork><![CDATA[
 	---A1---A3----S1, S3...S(n)
@@ -482,6 +529,12 @@ C      | /\ |
 ]]>
 </artwork>
 </figure>
+	</section>
+	<section title ="Fully Meshed Layers">
+		<t><xref target="full-mesh" /> extends the scenario in <xref target="shared-server-pools" /> by adding an extra layer of
+		agents. But since each layer of nodes can reach any node in the next layer, each node only needs to consider the load
+		of its next-hop peer.
+		</t>
 <figure title="Full Mesh" anchor="full-mesh">
 <artwork><![CDATA[
     ---A1---A3---S1, S3...S(n)
@@ -492,8 +545,23 @@ C      | /\ | /\
 ]]>
 </artwork>
 </figure>
-		
 	</section>
+	<section title="Partitions">
+	<t>A Diameter network with multiple is said to be "partitioned" when only a subset of available servers can server
+		a particular realm-routed request. For example, one group of servers may handle users whose names start with
+		"A" through "M", and another group may handle "N" through "Z". </t>
+	 <t>In such a partitioned network, nodes cannot load-balance requests across partitions, since not all
+		servers can handle the request. A client, or an intermediate agent, may still be able to load-balance
+		between servers inside a partition.</t>   
+	</section>
+	<section title="Active-Standby Nodes">
+	<t>The previous scenarios assume that traffic can be load balanced among all peers that are eligible to handle
+		a request. That is, the peers operate in an "active-active" configuration. In an "active-standby" configuration,
+		traffic would be load-balanced among active peers. Requests would only be sent to peers in a "standby" state if the
+		active peers became unavailable. For example, requests might be diverted to a stand-by peer if one or more
+		active peers becomes overloaded.</t>
+	</section> 
+   </section>
 	<section anchor="security" title="Security Considerations">
 		<t>
 			Load information may be sensitive information in some cases. Depending on the mechanism. an unauthorized recipient
