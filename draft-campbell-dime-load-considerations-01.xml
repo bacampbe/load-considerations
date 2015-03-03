@@ -47,7 +47,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="info" docName="draft-campbell-dime-load-considerations-00" ipr="trust200902">
+<rfc category="info" docName="draft-campbell-dime-load-considerations-01" ipr="trust200902">
 <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667
      you can add the attributes updates="NNNN" and obsoletes="NNNN"
@@ -76,14 +76,32 @@
 <!-- uri and facsimile elements may also be added -->
       </address>
     </author>
-	<author fullname = "Jean-Jacques Trottin" initials="J.J."
+    <author role="editor" initials="S" surname="Donovan" fullname="Steve Donovan">
+      <organization>Oracle</organization>
+      <address>
+        <postal>
+          <street>7460 Warren Parkway</street>
+          <city>Frisco</city>
+          <region>Texas</region>
+          <code>75034</code>
+          <country>United States</country>
+        </postal>
+        <email>srdonovan@usdonovans.com</email>
+      </address>
+    </author>
+	<author fullname = "Jean-Jacques Trottin" initials="JJ"
 		surname="Trottin">
 		<organization>Alcatel-Lucent</organization>
 		<address>
+      <postal>
+        <street>Route de Villejust</street>
+        <region>91620 Nozay</region>
+        <country>France</country>
+      </postal>
 			<email>jean-jacques.trottin@alcatel-lucent.com</email>
-		</address>	
+		</address>
 		</author>
-    <date month="October" year="2014" />
+    <date month="March" year="2015" />
 <!-- If the month and year are both specified and are the current ones, xml2rfc will fill
   in the current day for you. If only the current year is specified, xml2rfc will fill
     in the current day and month for you. If the year is not the current one, it is
@@ -97,7 +115,7 @@
   IETF is fine for individual submissions.
     If this element is not present, the default is "Network Working Group",
   which is used by the RFC Editor as a nod to the history of the IETF. -->
-    <keyword>Diameter</keyword> 
+    <keyword>Diameter</keyword>
 	<keyword>load</keyword>
 <!-- Keywords will be incorporated into HTML output
   files in a meta tag but they have no effect on text or nroff
@@ -107,7 +125,7 @@
       <t>
        RFC 7068 describes requirements for Overload Control in Diameter. This
  	   includes a requirement to allow Diameter nodes to send "load" information,
-	   even when the node is not overloaded. The 
+	   even when the node is not overloaded. The
  	   Diameter Overload Information Conveyance (DOIC) solution describes
        a mechanism meeting most of the requirements, but does
 	   not currently include the ability to send load. This document explores
@@ -138,7 +156,7 @@
 		    <t>At the time of this writing, there have been several attempts to create mechanisms
 			for conveyance of both load and overload control information that were not
 			adopted by the DIME working group. While these drafts are not expected to progress, they
-			may be instructive when considering these decisions.</t> 
+			may be instructive when considering these decisions.</t>
 			<t><list style="symbols">
 				<t><xref target="I-D.tschofenig-dime-dlba"/> proposed a dedicated Diameter application
 					for exchanging load balancing information.</t>
@@ -147,66 +165,101 @@
 					existing Diameter messages.</t>
 				 <t><xref target="I-D.korhonen-dime-ovl"/> described a dedicated Diameter
 				application for exchanging both load and overload information.</t>
-				</list></t> 
+				</list></t>
     </section>
 	<section anchor="load-overload" title="Differences between Load and Overload information">
-		<t>Previous discussions of how to solve the load-related requirements in <xref target="RFC7068"/>
-		have shown that people do not have an agreed-upon concept of how "load" information differs from "overload"
-		information. The two concepts are highly interrelated, and so far the working group has
-		not defined a bright line between what constitutes load information and what constitutes overload
-		information.</t>
-		<t>In the author's opinion, there are two primary differences. First, a Diameter node always has a load.
-			At any given time that load maybe effectively zero, effectively fully loaded, or somewhere in between.
-			In contrast, overload is an exceptional condition. A node only has overload information when it
-			in an overloaded state. Furthermore, the relationship between a node's load level and overload state
-			at any given time may be vague. For example, a node may normally operate at a "fully loaded" level,
-			but still not be considered overloaded. Another node may declare itself to be "overloaded" even though
+		<t>
+      Previous discussions of how to solve the load-related requirements in
+      <xref target="RFC7068"/> have shown that people do not have an agreed-upon concept of
+      how "load" information differs from "overload" information. The two concepts are highly
+      interrelated, and so far the working group has
+		  not defined a bright line between what constitutes load information
+      and what constitutes overload information.
+    </t>
+		<t>
+      In the opinion or the authors, there are two primary differences. First, a
+      Diameter node always has a load.  At any given time that load maybe effectively
+      zero, effectively fully loaded, or somewhere in between.
+			In contrast, overload is an exceptional condition. A node only has overload
+      information when it in an overloaded state. Furthermore, the relationship between
+      a node's load level and overload state at any given time may be vague.
+      For example, a node may normally operate at a "fully loaded" level, but still not
+      be considered overloaded. Another node may declare itself to be "overloaded" even though
 			it might not be fully "loaded".
-		 </t>
-		 <t>Second, Overload information, in the form of a <xref target="I-D.ietf-dime-ovli"> DOIC 
-			Overload Report (OLR) </xref> indicates an explicit request for action on the part of the
-			reacting node. That is, the OLR requests that the reacting node reduce the offered load
-			by an indicated amount or to an indicated level. Effectively, DOIC provides a contract
-			between the reporting node and the reacting node.</t>
-		 <t> In contrast, load  is informational. That is, load information can be considered a hint
+		</t>
+		<t>
+       Second, Overload information, in the form of a <xref target="I-D.ietf-dime-ovli"> DOIC
+			 Overload Report (OLR) </xref> indicates an explicit request for action on the part of the
+			 reacting node. That is, the OLR requests that the reacting node reduce the offered load
+       -- the actual traffic sent to the reporting node after overload abatement and routing
+       decisions are made --
+			 by an indicated amount or to an indicated level. Effectively, DOIC provides a contract
+			 between the reporting node and the reacting node.
+    </t>
+		<t>
+      In contrast, load is informational. That is, load information can be considered a hint
 			to the recipient node. That node may use the load information for load balancing purposes,
 			as an input to certain overload abatement techniques, to make inferences about the likelihood
 			that the sending node becomes overloaded in the immediate future, or for other purposes.
-		 </t>
-		 <t>None of this prevents a Diameter node from deciding to reduce the offered load based on
+		</t>
+		<t>
+      None of this prevents a Diameter node from deciding to reduce the offered load based on
 			load information. The fundamental difference is that an overload report requires
-			that reduction.
+			that reduction.  It is also reasonable for a Diameter node to decide to increase the
+      offered load based on load information.
 		 </t>
 	</section>
 	<section anchor="use" title="How is Load Information Used?">
-	     <t><xref target="RFC7068"/> contemplates two primary uses for load information. 
+	  <t>
+      <xref target="RFC7068"/> contemplates two primary uses for load information.
 			Req 23 discusses how load information might be used when performing diversion
 			as an overload abatement technique, as described in <xref target="I-D.ietf-dime-ovli"/>.
 			When a reacting node diverts traffic away from an overloaded node, it needs load information
 			for the other candidates for that traffic in order to effectively load
-			balance the diverted load between potential candidates. Otherwise, diversion has a greater potential
-			to drive other nodes into overload.
+			balance the diverted load between potential candidates. Otherwise, diversion has a
+      greater potential to drive other nodes into overload.
 		</t>
 		<t>
-			Req 24 discusses how a Diameter information might be used when no overload condition currently
+			Req 24 discusses how Diameter load information might be used when no overload condition currently
 			exists. Diameter nodes can use the load information to make decisions to try to avoid overload
 			conditions in the first place. Normal load-balancing falls into this category. A node might
-			also take other proactive steps to reduce offered load based on load information, so that the loaded
-			node never goes into overload in the first place. 
+			also take other proactive steps to reduce offered load based on load information,
+      so that the loaded
+			node never goes into overload in the first place.
 		</t>
 		<t>
-			If the loaded nodes are Diameter servers (or clients in the case of server-to-client transactions), 
-			both of these uses are most effectively accomplished 
+			If the loaded nodes are Diameter servers (or clients in the case of server-to-client
+      transactions), both of these uses are most effectively accomplished
 			by a Diameter node that performs server selection. Typically, server selection is performed
-			by a node (a client or an agent) that is an immediate peer of the server. However
-			a client or proxy that is not an immediate peer to the selected server can enforce
-			server selection by inserting a Destination-Host AVP.
-		</t> 
+			by a node (a client or an agent) that is an immediate peer of the server.
+      However, there are scenarios (see <xref target="scenarios" />)
+      where a client or proxy that is not
+      the immediate peer to the selected servers performs server selection.  In this case,
+      the client or proxy enforces the server selection by inserting a Destination-Host AVP.
+		</t>
+    <t><list><t>
+      For example, a Diameter node (e.g. client) can use a redirect agent to get
+      candidate destination
+      host addresses.  The redirect agent might return several destination host addresses,
+      from which the Diameter node selects one.  The Diameter node can use load
+      information received from these hosts to make the selection.
+    </t></list></t>
+    <t>
+      Just as load information can be used as part of server selection, it can also be used
+      as input to the selection of the next-hop peer to which a request is to be routed.
+    </t>
+    <t>
+      One area that requires thought is how load information is used, if at all, in the presence
+      of an overload report from the same Diameter node.  It might be that the load information
+      from that Diameter node is ignored for the duration of the time that the overload report
+      is in effect.  It might also be possible that the load information can aid in the routing of
+      non abated requests targeted for the overloaded Diameter node.
+    </t>
 	</section>
 	<section anchor="pigsorapps" title="Piggy-Backing vs a Dedicated Application.">
 		<t>
 		 	<xref target="I-D.roach-dime-overload-ctrl"/> imbeds load and overload information
-			onto messages of existing applications. This is known as a "piggy-back" approach. 
+			onto messages of existing applications. This is known as a "piggy-back" approach.
 			Such an approach has the advantage of not requiring new
 			messages to carry load information. It has an additional advantage of scaling with load;
 			that is, the more the transaction load, the more opportunities to send load information.
@@ -224,9 +277,10 @@
 		</t>
 		<t>
 			<xref target="I-D.korhonen-dime-ovl"/> also used a dedicated application, but allowed nodes
-			to send unsolicited reports containing load and overload information. 
-			The mechanism has an issue that the sender of load information may not know which other nodes need it. It may be
-			possible to infer that information from the primary Diameter applications.
+			to send unsolicited reports containing load and overload information.
+			The mechanism has an issue that the sender of load information may not know
+      which other nodes need the information.  It may be possible to infer that information
+      from other application messages handled by the sender.
 		</t>
 		<t>
 			Another potential approach is that of a dedicated Diameter application
@@ -239,19 +293,35 @@
 		</t>
 	</section>
 	<section anchor="p2p-e2e" title="Which Nodes Exchange Load Information?">
-		<t><xref target="scenarios" /> illustrates a number of Diameter network topologies
-		where load information may be useful. However, there are potentially limitless 
-		configurations where load information might be used to make peer and server selection 
-		choices. Nodes may 
-		be unaware of the topology beyond their immediate peers, limiting the utility of load 
-		information for nodes beyond that peer.</t>
-		<t> There may in fact be scenarios where a peer-selection decision is impacted
+		<t>
+      <xref target="scenarios" /> illustrates a number of Diameter network topologies
+  		where load information may be useful. However, there are potentially limitless
+  		configurations where load information might be used to make peer and server selection
+  		choices. Nodes may
+  		be unaware of the topology beyond their immediate peers,
+      which may limit the utility of load
+  		information for nodes beyond that peer.
+    </t>
+		<t>
+      There may in fact be scenarios where a peer-selection decision is impacted
 			by the load of non-adjacent nodes, or where a node needs to force selection of
 			a particular non-adjacent server. While explicit knowledge of the load of such
 			non-adjacent nodes may be useful in such decisions, the working group
-			should consider whether this utility is worth the added complexity.</t>	 	
+			should consider whether this utility is worth the added complexity.
+    </t>
+    <t><list><t>
+      For instance, one approach would be to support two types of load reports,
+      endpoint load reports and peer load reports.  In this scenario, load reports would
+      likely require an AVP indicating the Diameter node to which the report applies.
+      This would be needed to differentiate between endpoint load reports and
+      next hop load reports.  This would imply that a single message will likely
+      have two load reports, one for the endpoint and one for the next hop.  This
+      would also add complexity in agents, sometimes needing to strip next hop load
+      reports and sometimes not.
+    </t></list></t>
 
-		<t> Previous load related efforts have made different assumptions about which
+		<t>
+      Previous load related efforts have made different assumptions about which
 			Diameter nodes exchange load information.
 		</t>
 		<t>
@@ -263,7 +333,7 @@
 			 <xref target="I-D.korhonen-dime-ovl"/> and <xref target="I-D.tschofenig-dime-dlba"/>
 			 are each effectively any-to-any. That is, they each allowed any node to send load information
 			 to any other node that supported
-			 the dedicated overload or load application, respectively. 
+			 the dedicated overload or load application, respectively.
 		</t>
 		<t>
 			In the latter case, load
@@ -274,45 +344,65 @@
 			of <xref target="I-D.roach-dime-overload-ctrl"/>.
 		</t>
 		<t>
-			Each approach has advantages. Since server selection is typically done by immediate peers to the servers,
-			peer-to-peer transmission covers most cases. Additionally, selection of non-terminal nodes is exclusively
-			done on a peer-to-peer basis. If the loaded node is an agent, for example, the load information is only useful
-			to immediate peers. Peer-to-peer transmission is the easiest to negotiation. (See <xref target="negotiation"/>)
+			Each approach has advantages. Since server selection is typically done by immediate peers
+      to the servers, peer-to-peer transmission covers most cases. Additionally,
+      selection of non-terminal nodes is exclusively
+			done on a peer-to-peer basis. If the loaded node is an agent, for example,
+      the load information is only useful
+			to immediate peers. Peer-to-peer transmission is the easiest to
+      negotiate. (See <xref target="negotiation"/>)
 		</t>
 		<t>
-			Any-to-Any transmission offers more flexibility, and could potentially cover the case where server 
+			Any-to-Any transmission offers more flexibility, and could potentially cover the case where server
 			selection is done by nodes that
 			are not peers to the candidate servers.
 		</t>
-			
+
 	</section>
 	<section anchor="scope" title="Scope of Load Information">
 		<t>Load information could refer to several different scopes:</t>
 		<t>
 			<list style="symbols">
-				<t>Load of a Node -- The load information refers to the load for an entire Diameter host, that is
+				<t>Load of a Node -- The load information refers to the load for an entire
+          Diameter host, that is
 					a Client, Agent, or Server described by a Diameter Identity. </t>
 				<t>
 					Load of an Application -- The load for a specific Diameter node that supports multiple
 					Diameter applications might differ between applications.
 				</t>
 				<t>
-					Load of a set of nodes
+					Load of a set of nodes -- The load would likely be the aggregated load of the nodes in
+          the set.  This would likely require a separate Diameter identity be assigned to the
+          set of nodes and the load information would be associated with that Diameter
+          identity.
 				</t>
 				<t>
-					Aggregate Load -- Different paths via different agents may exist between a node making a peer
-					selection decision and the final destination of the request. The least loaded destination
-					may only be reachable via certain peers. 
-				</t>   
+					Aggregate Load -- Different paths via different agents may exist
+          between a node making a peer
+					selection decision and the final destination of the request.
+          The least loaded destination
+					may only be reachable via certain peers.
+				</t>
+        <t>
+          Load of an agent plus load of a Diameter endpoint -- Different paths via different
+          Diameter agents may exist between the node doing the server selection and
+          the targeted Diameter endpoint. The load information on the Diameter endpoint
+          might be used for server selection and the load information on the
+          agent might be used for selecting
+          the next hop in the route to the Diameter endpoint.
+        </t>
 			</list>
 		</t>
-		<t>The "scope" of load information defines what the load indication applies to. For example, load could apply to a whole 
-			Diameter node, or a node could report different load for different application. It might be possible to have a load value
+		<t>
+      The "scope" of load information defines what the load indication applies to.
+      For example, load could apply to a whole
+			Diameter node, or a node could report different load for different application.
+      It might be possible to have a load value
 			for a whole realm, or a group of nodes.
 		</t>
 		<t>
 			<xref target="I-D.roach-dime-overload-ctrl"/> has a very expressive concept of scope, which applies both to load and overload
-			information. It defines the scopes of "Destination-Realm", "Application-ID", "Destination-Host", "Host", 
+			information. It defines the scopes of "Destination-Realm", "Application-ID", "Destination-Host", "Host",
 			"Connection", "Session", and "Session-Group". Scopes can be combined.
 		</t>
 		<t>
@@ -321,17 +411,22 @@
 		</t>
 		<t>
 			<xref target="I-D.korhonen-dime-ovl"/> defines several scopes for overload information. However, load
-			information applies to the a whole node.  		
+			information applies to the a whole node.
 		</t>
 		<t>
-			The author's opinion is that the load level of a Diameter node will usually apply to the whole node. Thus,
-			the working group should consider a single "whole node" scope for load information. Alternatively,   
-
-			a "per-connection" scope could simulate "whole node" scope without requiring the recipient to pay attention to
+			One view is that the load level of a Diameter node will usually
+      apply to the whole node. In this case,
+			the working group should consider a single "whole node" scope for
+      load information. Alternatively, a "per-connection" scope could simulate
+      "whole node" scope without requiring the recipient to pay attention to
 			whether multiple transport connections terminate at the same peer.
 		</t>
-		
-		 
+    <t>
+      Other scopes might also be considered based on the analysis of the
+      use cases identified for the use of load information.
+    </t>
+
+
 	</section>
 	<section anchor="semantics" title="Load Information Semantics">
 		<t>
@@ -340,16 +435,16 @@
 			 The former uses a range of 0-10, while the later uses 0-100
 		</t>
 		<t>
-			<xref target="I-D.roach-dime-overload-ctrl"/> treats load information as a strictly relative weighting factor. 
+			<xref target="I-D.roach-dime-overload-ctrl"/> treats load information as a strictly relative weighting factor.
 			The weight is only meaningful when load-balancing
-			across multiple destinations. That is, a maximum load value does not necessarily imply that the node is 
-			cannot handle more traffic.  The load level scale is zero to 65535. That scale was chosen to match the 
+			across multiple destinations. That is, a maximum load value does not necessarily imply that the node is
+			cannot handle more traffic.  The load level scale is zero to 65535. That scale was chosen to match the
 			resolution of the weight field
-			from a <xref target="RFC2782">DNS SRV record,</xref> 
+			from a <xref target="RFC2782">DNS SRV record,</xref>
 		</t>
 	</section>
 	<section anchor="negotiation" title="Is Negotiation of Support Needed?">
-		<t>The working group should discuss whether a load conveyance mechanism requires negotiation or declaration of support. 
+		<t>The working group should discuss whether a load conveyance mechanism requires negotiation or declaration of support.
 			Several considerations apply to this discussion.
 		</t>
 		<t> If load information is treated as a hint, it can be safely ignored by nodes that don't understand it. However, security
@@ -359,8 +454,8 @@
 		<t>
 			If load information is conveyed using a dedicated Diameter application, the normal mechanisms for negotiation
 			support for Diameter applications apply. However, the <xref target="RFC6733">Diameter Capabilities Exchange</xref> mechanism
-			is inherently peer-to-peer. If there is an need to convey load information across a node that does not understand
-			the mechanism, the standard Diameter mechanism would involve probing by support by sending load requests and watching for
+			is inherently peer-to-peer. If there is a need to convey load information across a node that does not understand
+			the mechanism, the standard Diameter mechanism would involve probing for support by sending load requests and watching for
 		    error answers with a result code of DIAMETER_APPLICATION_UNSUPPORTED. If the probe request also includes load
 		    information, there is again a potential for leaking load information to unauthorized parties.
 		</t>
@@ -380,9 +475,12 @@
 	</section>
 	<section anchor="scenarios" title="Topology Scenarios">
 		<t>
-			This section presents a number of Diameter topology scenarios, and discusses how load information
-			might be used in each scenario. Nothing in this section should be construed to mean that a given scenario
-			is in scope for this effort, or even a good idea.
+			This section presents a number of Diameter topology scenarios, and discusses
+      how load information
+			might be used in each scenario. Nothing in this section should be construed
+      to mean that a given scenario
+			is in scope for this effort, or even a good idea.  Some scenarios might be
+      considered as not relevant in practice and subsequently discarded.
 		</t>
 	<section title="No Agent">
 		<t>
@@ -392,38 +490,41 @@
 		</t>
 <figure title="Basic Client Server Scenario" anchor="simple-CS">
 <artwork><![CDATA[
- 	------S1
-  /
+  ------S1
+ /
 C
-  \
-	------S2
+ \
+  ------S2
 ]]>
 </artwork>
 </figure>
 		<t>
 			<list>
 				<t>
-					Open Issue: Will a Diameter node include potential peers that it is not 
+					Open Issue: Will a Diameter node include potential peers that it is not
 					currently connected to as part of the candidate set? It is unlikely the client
 					would have load information from peers that it is not currently connected to.
 				</t>
 			</list>
 		</t>
+    <t><list><t>
+      Note: The use of dynamic connections needs to be considered.
+    </t></list></t>
 	</section>
 	<section title="Single Agent">
         <t>
-        	<xref target="simple-agent" /> shows a client that sends requests to an agent. The agent selects 
+        	<xref target="simple-agent" /> shows a client that sends requests to an agent. The agent selects
 			the request destination from a set of candidate servers, using load information received from
 			each server. The client does not need to receive load information, since it does not select
 			between multiple agents.
         </t>
 <figure title="Simple Agent Scenario" anchor="simple-agent">
 <artwork><![CDATA[
- 		 ------S1
-	   /
+       ------S1
+      /
 C----A
-	   \
-		 ------S2
+      \
+       ------S2
 		    	]]>
 </artwork>
 </figure>
@@ -440,7 +541,7 @@ C----A
 			for example, S4 was the least loaded server, C would need to know to select agent A2 to reach S4.
 			This might require C to receive load information from the servers as well as the agents.
 			Alternatively, each agent might use the load of its servers as an input into calculating its
-			own load, in effect aggregating upstream load.			
+			own load, in effect aggregating upstream load.
 		</t>
 		<t>
 			Similarly, if C sends a <xref target="I-D.ietf-dime-ovli">host-routed request</xref>, it needs
@@ -448,39 +549,46 @@ C----A
 			some special, potentially proprietary, knowledge of the topology upstream of A1 and A2, C
 			would select the agent based on the normal peer selection procedures for the realm and application, and
 			perhaps consider the load information from A1 and A2. If C sends a request
-			to A1 that contains a Destination-Host AVP with a value of S4, 
+			to A1 that contains a Destination-Host AVP with a value of S4,
 			A1 will not be able to deliver the request.
 		</t>
 <figure title="Multiple Agents and Servers" anchor="multi-agent">
 <artwork><![CDATA[
-	     -----S3
-	   /
-   ---A1------S1
- /    
-C     
- \    
-   ---A2------S2
-	   \
-	     ---- S4
+        -----S3
+       /
+  ---A1------S1
+ /
+C
+ \
+  ---A2------S2
+       \
+        ---- S4
 ]]>
 </artwork>
 </figure>
 	</section>
 	<section title="Linked Agents">
 		<t>
-			<xref target="linked-agents" /> shows a scenario similar to that of <xref target="multi-agent" />,
-			except that the agents are linked, so that A1 can forward a request to A2, and vice-versa.
-			Each agent could receive load information from the linked agent, as well as its connected servers.
+			<xref target="linked-agents" /> shows a scenario similar to that of
+      <xref target="multi-agent" />,
+			except that the agents are linked, so that A1 can forward a
+      request to A2, and vice-versa.
+			Each agent could receive load information from the linked agent,
+      as well as its connected servers.
 		</t>
 		<t>
-			This somewhat simplifies the complication from <xref target="multi-agent" />, due to the fact
-			that C does not necessarily need to choose a particular agent to reach a particular server.
-			But it creates a similar question of how, for example, A1 might know that S4 was less loaded than
-			S1 or S3. Additionally, it creates the opportunity for sub-optimal request paths. For example
+			This somewhat simplifies the complication from <xref target="multi-agent" />,
+      due to the fact
+			that C does not necessarily need to choose a particular agent to reach a
+      particular server.
+			But it creates a similar question of how, for example, A1 might know
+      that S4 was less loaded than
+			S1 or S3. Additionally, it creates the opportunity for sub-optimal
+      request paths. For example
 			[C,A1,A2,S4] vs. [C,A2,S4].
 		</t>
 		<t>
-			A likely application for linked agents is when each agent prefers one set of servers and only 
+			A likely application for linked agents is when each agent prefers one set of servers and only
 			forwards requests to another agent under exceptional circumstances. For example, A1 might
 			not forward requests to A2 unless both S1 and S3 are overloaded. In this case, A1 might use the
 			load information from S1 and S3 to select between those, and only consider the load information
@@ -488,15 +596,41 @@ C
 		</t>
 <figure title="Linked Agents" anchor="linked-agents">
 <artwork><![CDATA[
-	     -----S3
-	   /
+         -----S3
+        /
    ---A1------S1
  /    |
 C     |
  \    |
    ---A2------S2
-	   \
-	     ---- S4
+        \
+         ---- S4
+]]>
+</artwork>
+</figure>
+      <t>
+        <xref target="linked-agents2"/> is a variant of <xref target="linked-agents"/>.  In this
+        case, C1 sends all traffic through A1 and C2 sends all traffic through A2.  By default,
+        A1 will load balance traffic between S1 and S3 and A2 will load balance traffic between
+        S2 and S4.
+      </t>
+      <t>
+        Now, if S1 S3 are significantly more loaded than S2 S4, A1 may route some C1
+        traffic to A2. This is non optimal path but allows a better load balancing
+        between the servers. To achieve this, A1 needs to receive some load info
+        from A2 about S2/S4 load.
+      </t>
+<figure title="Linked Agents" anchor="linked-agents2">
+<artwork><![CDATA[
+         -----S3
+        /
+C1----A1------S1
+      |
+      |
+      |
+C2----A2------S2
+        \
+         ---- S4
 ]]>
 </artwork>
 </figure>
@@ -504,18 +638,18 @@ C     |
 	<section title="Shared Server Pools">
 		<t><xref target="shared-server-pools" /> is similar to <xref target="linked-agents" />, except
 		that instead of a link between agents, each agent is linked to all servers. (The links to each set of servers
-		should be interpreted as a link to each server. The links are not shown separately due to the limitations of 
+		should be interpreted as a link to each server. The links are not shown separately due to the limitations of
 		ASCII art.)</t>
 		<t>In this scenario, each agent can select among all of the servers, based on the load information from the servers.
 			The client need only be concerned with the load information of the agents.</t>
 <figure title="Shared Server Pools" anchor="shared-server-pools">
 <artwork>
 	<![CDATA[
-	---A1---S1, S3...S[n]
-  /      \/
-C        /\
-  \     /  \
-	---A2---S2, S4...S[n+1]
+  ---A1---S[1], S[2]...S[p]
+ /     \ /
+C       x
+ \     / \
+  ---A2---S[p+1], S[p+2] ...S[n]
 ]]>
 </artwork>
 </figure>
@@ -524,15 +658,15 @@ C        /\
 	<t>The scenario in <xref target="agent-chains" /> is similar to that of <xref target="multi-agent" />, except that,
 	instead of the client possibly needing to select an agent that can route requests to the least loaded server, in
 	this case A1 and A2 need to make similar decisions when selecting between A3 or A4. As the former scenario, this
-	could be mitigated if A3 and A4 aggregate upstream loads into the load information they report downstream.   	
+	could be mitigated if A3 and A4 aggregate upstream loads into the load information they report downstream.
 	</t>
 <figure title="Agent Chains" anchor="agent-chains">
 <artwork><![CDATA[
-	---A1---A3----S1, S3...S(n)
-  /    | \/ |
-C      | /\ |
-  \    |/  \|
-	---A2---A4----S2, S4...S(n+1)
+  ---A1---A3----S[1], S[2]...S[p]
+ /   | \ / |
+C    |  x  |
+ \   | / \ |
+  ---A2---A4----S[p+1], S[p+2] ...S[n]
 ]]>
 </artwork>
 </figure>
@@ -544,39 +678,57 @@ C      | /\ |
 		</t>
 <figure title="Full Mesh" anchor="full-mesh">
 <artwork><![CDATA[
-    ---A1---A3---S1, S3...S(n)
-  /    | \/ | \/
-C      | /\ | /\
-  \    |/  \|/  \
-	---A2---A4---S2, S4...S(n+1)
+  ---A1---A3---S[1], S[2]...S[p]
+ /   | \ / |\ /
+C    |  x  | x
+ \   | / \ |/ \
+  ---A2---A4---S[p+1], S[p+2] ...S[n]
 ]]>
 </artwork>
 </figure>
 	</section>
-	<section title="Partitions">
-	<t>A Diameter network with multiple is said to be "partitioned" when only a subset of available servers can server
-		a particular realm-routed request. For example, one group of servers may handle users whose names start with
-		"A" through "M", and another group may handle "N" through "Z". </t>
-	 <t>In such a partitioned network, nodes cannot load-balance requests across partitions, since not all
-		servers can handle the request. A client, or an intermediate agent, may still be able to load-balance
-		between servers inside a partition.</t>   
-	</section>
-	<section title="Active-Standby Nodes">
-	<t>The previous scenarios assume that traffic can be load balanced among all peers that are eligible to handle
-		a request. That is, the peers operate in an "active-active" configuration. In an "active-standby" configuration,
-		traffic would be load-balanced among active peers. Requests would only be sent to peers in a "standby" state if the
-		active peers became unavailable. For example, requests might be diverted to a stand-by peer if one or more
-		active peers becomes overloaded.</t>
-	</section> 
-   </section>
+  	<section title="Partitions">
+  	<t>A Diameter network with multiple is said to be "partitioned" when only a subset of available servers can server
+  		a particular realm-routed request. For example, one group of servers may handle users whose names start with
+  		"A" through "M", and another group may handle "N" through "Z". </t>
+  	 <t>In such a partitioned network, nodes cannot load-balance requests across partitions, since not all
+  		servers can handle the request. A client, or an intermediate agent, may still be able to load-balance
+  		between servers inside a partition.</t>
+  	</section>
+  	<section title="Active-Standby Nodes">
+    	<t>The previous scenarios assume that traffic can be load balanced among all peers that are eligible to handle
+    		a request. That is, the peers operate in an "active-active" configuration. In an "active-standby" configuration,
+    		traffic would be load-balanced among active peers. Requests would only be sent to peers in a "standby" state if the
+    		active peers became unavailable. For example, requests might be diverted to a stand-by peer if one or more
+    		active peers becomes overloaded.</t>
+  	</section>
+    <section title="Addition and removal of Nodes">
+      <t>
+        When a Diameter node is added, the new node will start by advertising its load.
+        Downstream nodes will need to factor the new load information into
+        load balancing decisions.  The downstream nodes should attempt to ensure
+        a smooth increase of the traffic to the new node, avoiding an immediate spike
+        of traffic to the new node.  It should be determined if
+        this use case is in the scope of the load control mechanism.
+      </t>
+      <t>
+        When removing a node in a controlled way (e.g. for maintenance purpose, so
+        outside a failure case), it might be appropriate to progressively reduce the traffic
+        to this node by routing traffic to other nodes.  Simple load
+        information (load percentage) would be not sufficient. It should be determined if
+        this use case is in the scope of the load control mechanism.
+      </t>
+    </section>
+  </section>
+
 	<section anchor="security" title="Security Considerations">
 		<t>
 			Load information may be sensitive information in some cases. Depending on the mechanism. an unauthorized recipient
 			 might be able to infer the topology of a Diameter network from load information. Load information might be useful
 			in identifying targets for Denial of Service (DoS) attacks, where a node known to be already heavily loaded might
-			be a tempting target. Load information might also be useful as feedback about the success of an ongoing DoS attack.    
+			be a tempting target. Load information might also be useful as feedback about the success of an ongoing DoS attack.
 		</t>
-		<t>Any load information conveyance mechanism will need to allow operators to avoid sending load information to 
+		<t>Any load information conveyance mechanism will need to allow operators to avoid sending load information to
 		   nodes that are not authorized to receive it. Since Diameter currently only offers authentication of nodes at the transport
 		   level, any solution that sends load information to non-peer nodes might require a transitive-trust model.
 		</t>
