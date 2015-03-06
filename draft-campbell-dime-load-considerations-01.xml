@@ -80,7 +80,7 @@
       <organization>Oracle</organization>
       <address>
         <postal>
-          <street>7460 Warren Parkway</street>
+          <street>7460 Warren Parkway # 300</street>
           <city>Frisco</city>
           <region>Texas</region>
           <code>75034</code>
@@ -128,8 +128,8 @@
 	   even when the node is not overloaded. The
  	   Diameter Overload Information Conveyance (DOIC) solution describes
        a mechanism meeting most of the requirements, but does
-	   not currently include the ability to send load. This document explores
-	   some architectural considerations for a mechanism to send load information.
+	   not currently include the ability to send load information. This document explores
+	   some architectural considerations for a mechanism to send Diameter load information.
       </t>
     </abstract>
   </front>
@@ -138,12 +138,13 @@
 		<t><xref target="RFC7068"/> describes requirements for Overload Control
 		in <xref target="RFC6733">Diameter</xref>.  At the time of this writing,
 		the DIME working group is working on the Diameter Overload Information Conveyance
-		(DOIC) mechanism. As currently specified, DOIC fulfills some, but not all, of the
+		(DOIC) mechanism <xref target="I-D.ietf-dime-ovli"/> .
+    As currently specified, DOIC fulfills some, but not all, of the
 		requirements.</t>
 		<t>In particular, DOIC does not fulfill Req 24, which requires a mechanism
 			where Diameter nodes can indicate their current load, even if they are not
 			currently overloaded. DOIC also does not fulfill Req 23, which requires that
-			nodes that diverts traffic away from overloaded nodes be provided with
+			nodes that divert traffic away from overloaded nodes be provided with
 			sufficient information to select targets that are most likely to have sufficient capacity.</t>
 		 <t>There are several other requirements in RFC 7068 that mention both overload and load
 			information that are only partially fulfilled by DOIC.</t>
@@ -177,7 +178,7 @@
       and what constitutes overload information.
     </t>
 		<t>
-      In the opinion or the authors, there are two primary differences. First, a
+      In the opinion of the authors, there are two primary differences. First, a
       Diameter node always has a load.  At any given time that load maybe effectively
       zero, effectively fully loaded, or somewhere in between.
 			In contrast, overload is an exceptional condition. A node only has overload
@@ -253,7 +254,7 @@
       of an overload report from the same Diameter node.  It might be that the load information
       from that Diameter node is ignored for the duration of the time that the overload report
       is in effect.  It might also be possible that the load information can aid in the routing of
-      non abated requests targeted for the overloaded Diameter node.
+      non-abated requests targeted for the overloaded Diameter node.
     </t>
 	</section>
 	<section anchor="pigsorapps" title="Piggy-Backing vs a Dedicated Application.">
@@ -344,9 +345,10 @@
 			of <xref target="I-D.roach-dime-overload-ctrl"/>.
 		</t>
 		<t>
-			Each approach has advantages. Since server selection is typically done by immediate peers
-      to the servers, peer-to-peer transmission covers most cases. Additionally,
-      selection of non-terminal nodes is exclusively
+			Each approach has advantages. Peer-to-peer transmission covers the case
+      when server selection is done by the servers immediate peers.
+      Additionally,
+      selection of non-terminal nodes is generally
 			done on a peer-to-peer basis. If the loaded node is an agent, for example,
       the load information is only useful
 			to immediate peers. Peer-to-peer transmission is the easiest to
@@ -425,14 +427,52 @@
       Other scopes might also be considered based on the analysis of the
       use cases identified for the use of load information.
     </t>
-
-
 	</section>
+
+  <section anchor="freq" title="Frequency of Sending Load Information">
+    <t>
+      While it is true that a node always has a discrete load, a determination
+      needs to be made as to the frequency with which load information is sent.
+    </t>
+    <t>
+      This interacts with the method for transporting load information -- piggy-backed
+      versus a dedicated application -- discussed in <xref target="p2p-e2e"/>.
+    </t>
+    <t>
+      With a piggy-backed approach the following alternatives exist:
+    </t>
+    <t><list style="numbers">
+      <t>
+        Send load information in every message.
+      </t>
+      <t>
+        Send load information when it changes by some amount.  For instance,
+        only send a new load report when the load value has changed by some percentage.
+      </t>
+      <t>
+        Send load information every interval of time.  With this approach, load
+        information would be sent every some number of seconds.
+      </t>
+    </list></t>
+    <t>
+      With alternatives 2 and 3 there would need to be a mechanism for the sender of
+      the load information to ensure that all consumers of the load information receive
+      the periodic load information.  This is more straightforward if the load information
+      is sent only to peers.  It becomes more difficult if the load information is sent to
+      non adjacent nodes.  This might require option one if the load mechanism supports
+      sending of load information to non adjacent nodes.
+    </t>
+    <t>
+      If a dedicated application is used for transporting of load information then part of
+      the application definition would need to define the frequency of sending load information.
+      Options 2 and 3 in the above list would be the likely alternatives.
+    </t>
+  </section>
 	<section anchor="semantics" title="Load Information Semantics">
 		<t>
 			Both <xref target="I-D.tschofenig-dime-dlba"/> and <xref target="I-D.korhonen-dime-ovl"/> define load level to be a range
 			between zero and some maximum value, where zero means no load at all and the max value means fully loaded.
-			 The former uses a range of 0-10, while the later uses 0-100
+			 The former uses a range of 0-10, while the later uses 0-100.
 		</t>
 		<t>
 			<xref target="I-D.roach-dime-overload-ctrl"/> treats load information as a strictly relative weighting factor.
@@ -588,7 +628,8 @@ C
 			[C,A1,A2,S4] vs. [C,A2,S4].
 		</t>
 		<t>
-			A likely application for linked agents is when each agent prefers one set of servers and only
+			A likely application for linked agents is when each agent prefers to route only to
+      directly connected servers and only
 			forwards requests to another agent under exceptional circumstances. For example, A1 might
 			not forward requests to A2 unless both S1 and S3 are overloaded. In this case, A1 might use the
 			load information from S1 and S3 to select between those, and only consider the load information
@@ -663,9 +704,9 @@ C       x
 <figure title="Agent Chains" anchor="agent-chains">
 <artwork><![CDATA[
   ---A1---A3----S[1], S[2]...S[p]
- /   | \ / |
-C    |  x  |
- \   | / \ |
+ /   | \ /
+C    |  x
+ \   | / \
   ---A2---A4----S[p+1], S[p+2] ...S[n]
 ]]>
 </artwork>

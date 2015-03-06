@@ -20,8 +20,9 @@ Abstract
    information, even when the node is not overloaded.  The Diameter
    Overload Information Conveyance (DOIC) solution describes a mechanism
    meeting most of the requirements, but does not currently include the
-   ability to send load.  This document explores some architectural
-   considerations for a mechanism to send load information.
+   ability to send load information.  This document explores some
+   architectural considerations for a mechanism to send Diameter load
+   information.
 
 Status of This Memo
 
@@ -49,7 +50,6 @@ Copyright Notice
    Provisions Relating to IETF Documents
    (http://trustee.ietf.org/license-info) in effect on the date of
    publication of this document.  Please review these documents
-   carefully, as they describe your rights and restrictions with respect
 
 
 
@@ -58,6 +58,7 @@ Campbell, et al.        Expires September 4, 2015               [Page 1]
 Internet-Draft              Abbreviated Title                 March 2015
 
 
+   carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
    include Simplified BSD License text as described in Section 4.e of
    the Trust Legal Provisions and are provided without warranty as
@@ -71,40 +72,39 @@ Table of Contents
    4.  Piggy-Backing vs a Dedicated Application. . . . . . . . . . .   5
    5.  Which Nodes Exchange Load Information?  . . . . . . . . . . .   6
    6.  Scope of Load Information . . . . . . . . . . . . . . . . . .   7
-   7.  Load Information Semantics  . . . . . . . . . . . . . . . . .   8
-   8.  Is Negotiation of Support Needed? . . . . . . . . . . . . . .   9
-   9.  Topology Scenarios  . . . . . . . . . . . . . . . . . . . . .   9
-     9.1.  No Agent  . . . . . . . . . . . . . . . . . . . . . . . .  10
-     9.2.  Single Agent  . . . . . . . . . . . . . . . . . . . . . .  10
-     9.3.  Multiple Agents . . . . . . . . . . . . . . . . . . . . .  11
-     9.4.  Linked Agents . . . . . . . . . . . . . . . . . . . . . .  11
-     9.5.  Shared Server Pools . . . . . . . . . . . . . . . . . . .  13
-     9.6.  Agent Chains  . . . . . . . . . . . . . . . . . . . . . .  13
-     9.7.  Fully Meshed Layers . . . . . . . . . . . . . . . . . . .  13
-     9.8.  Partitions  . . . . . . . . . . . . . . . . . . . . . . .  14
-     9.9.  Active-Standby Nodes  . . . . . . . . . . . . . . . . . .  14
-     9.10. Addition and removal of Nodes . . . . . . . . . . . . . .  14
-   10. Security Considerations . . . . . . . . . . . . . . . . . . .  15
-   11. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  15
-   12. References  . . . . . . . . . . . . . . . . . . . . . . . . .  15
-     12.1.  Normative References . . . . . . . . . . . . . . . . . .  15
-     12.2.  Informative References . . . . . . . . . . . . . . . . .  15
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  16
+   7.  Frequency of Sending Load Information . . . . . . . . . . . .   8
+   8.  Load Information Semantics  . . . . . . . . . . . . . . . . .   9
+   9.  Is Negotiation of Support Needed? . . . . . . . . . . . . . .  10
+   10. Topology Scenarios  . . . . . . . . . . . . . . . . . . . . .  10
+     10.1.  No Agent . . . . . . . . . . . . . . . . . . . . . . . .  11
+     10.2.  Single Agent . . . . . . . . . . . . . . . . . . . . . .  11
+     10.3.  Multiple Agents  . . . . . . . . . . . . . . . . . . . .  11
+     10.4.  Linked Agents  . . . . . . . . . . . . . . . . . . . . .  12
+     10.5.  Shared Server Pools  . . . . . . . . . . . . . . . . . .  13
+     10.6.  Agent Chains . . . . . . . . . . . . . . . . . . . . . .  14
+     10.7.  Fully Meshed Layers  . . . . . . . . . . . . . . . . . .  14
+     10.8.  Partitions . . . . . . . . . . . . . . . . . . . . . . .  15
+     10.9.  Active-Standby Nodes . . . . . . . . . . . . . . . . . .  15
+     10.10. Addition and removal of Nodes  . . . . . . . . . . . . .  15
+   11. Security Considerations . . . . . . . . . . . . . . . . . . .  15
+   12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  16
+   13. References  . . . . . . . . . . . . . . . . . . . . . . . . .  16
+     13.1.  Normative References . . . . . . . . . . . . . . . . . .  16
+     13.2.  Informative References . . . . . . . . . . . . . . . . .  16
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  17
 
 1.  Introduction
 
    [RFC7068] describes requirements for Overload Control in Diameter
    [RFC6733].  At the time of this writing, the DIME working group is
    working on the Diameter Overload Information Conveyance (DOIC)
-   mechanism.  As currently specified, DOIC fulfills some, but not all,
-   of the requirements.
+   mechanism [I-D.ietf-dime-ovli] .  As currently specified, DOIC
+   fulfills some, but not all, of the requirements.
 
    In particular, DOIC does not fulfill Req 24, which requires a
    mechanism where Diameter nodes can indicate their current load, even
    if they are not currently overloaded.  DOIC also does not fulfill Req
-   23, which requires that nodes that diverts traffic away from
-   overloaded nodes be provided with sufficient information to select
-   targets that are most likely to have sufficient capacity.
+   23, which requires that nodes that divert traffic away from
 
 
 
@@ -113,6 +113,9 @@ Campbell, et al.        Expires September 4, 2015               [Page 2]
 
 Internet-Draft              Abbreviated Title                 March 2015
 
+
+   overloaded nodes be provided with sufficient information to select
+   targets that are most likely to have sufficient capacity.
 
    There are several other requirements in RFC 7068 that mention both
    overload and load information that are only partially fulfilled by
@@ -154,14 +157,11 @@ Internet-Draft              Abbreviated Title                 March 2015
    has not defined a bright line between what constitutes load
    information and what constitutes overload information.
 
-   In the opinion or the authors, there are two primary differences.
+   In the opinion of the authors, there are two primary differences.
    First, a Diameter node always has a load.  At any given time that
    load maybe effectively zero, effectively fully loaded, or somewhere
    in between.  In contrast, overload is an exceptional condition.  A
    node only has overload information when it in an overloaded state.
-   Furthermore, the relationship between a node's load level and
-   overload state at any given time may be vague.  For example, a node
-   may normally operate at a "fully loaded" level, but still not be
 
 
 
@@ -170,6 +170,9 @@ Campbell, et al.        Expires September 4, 2015               [Page 3]
 Internet-Draft              Abbreviated Title                 March 2015
 
 
+   Furthermore, the relationship between a node's load level and
+   overload state at any given time may be vague.  For example, a node
+   may normally operate at a "fully loaded" level, but still not be
    considered overloaded.  Another node may declare itself to be
    "overloaded" even though it might not be fully "loaded".
 
@@ -214,10 +217,7 @@ Internet-Draft              Abbreviated Title                 March 2015
    based on load information, so that the loaded node never goes into
    overload in the first place.
 
-   If the loaded nodes are Diameter servers (or clients in the case of
-   server-to-client transactions), both of these uses are most
-   effectively accomplished by a Diameter node that performs server
-   selection.  Typically, server selection is performed by a node (a
+
 
 
 
@@ -226,8 +226,12 @@ Campbell, et al.        Expires September 4, 2015               [Page 4]
 Internet-Draft              Abbreviated Title                 March 2015
 
 
+   If the loaded nodes are Diameter servers (or clients in the case of
+   server-to-client transactions), both of these uses are most
+   effectively accomplished by a Diameter node that performs server
+   selection.  Typically, server selection is performed by a node (a
    client or an agent) that is an immediate peer of the server.
-   However, there are scenarios (see Section 9) where a client or proxy
+   However, there are scenarios (see Section 10) where a client or proxy
    that is not the immediate peer to the selected servers performs
    server selection.  In this case, the client or proxy enforces the
    server selection by inserting a Destination-Host AVP.
@@ -270,10 +274,6 @@ Internet-Draft              Abbreviated Title                 March 2015
    can send unsolicited updates if the load level changes between
    updates in the cadence.
 
-   [I-D.korhonen-dime-ovl] also used a dedicated application, but
-   allowed nodes to send unsolicited reports containing load and
-   overload information.  The mechanism has an issue that the sender of
-   load information may not know which other nodes need the information.
 
 
 
@@ -282,6 +282,10 @@ Campbell, et al.        Expires September 4, 2015               [Page 5]
 Internet-Draft              Abbreviated Title                 March 2015
 
 
+   [I-D.korhonen-dime-ovl] also used a dedicated application, but
+   allowed nodes to send unsolicited reports containing load and
+   overload information.  The mechanism has an issue that the sender of
+   load information may not know which other nodes need the information.
    It may be possible to infer that information from other application
    messages handled by the sender.
 
@@ -299,7 +303,7 @@ Internet-Draft              Abbreviated Title                 March 2015
 
 5.  Which Nodes Exchange Load Information?
 
-   Section 9 illustrates a number of Diameter network topologies where
+   Section 10 illustrates a number of Diameter network topologies where
    load information may be useful.  However, there are potentially
    limitless configurations where load information might be used to make
    peer and server selection choices.  Nodes may be unaware of the
@@ -326,10 +330,6 @@ Internet-Draft              Abbreviated Title                 March 2015
    Previous load related efforts have made different assumptions about
    which Diameter nodes exchange load information.
 
-   [I-D.roach-dime-overload-ctrl] operated in a strictly peer-to-peer
-   mode.  Each node would only learn the load (and overload) information
-   from its immediate peers.
-
 
 
 
@@ -337,6 +337,10 @@ Campbell, et al.        Expires September 4, 2015               [Page 6]
 
 Internet-Draft              Abbreviated Title                 March 2015
 
+
+   [I-D.roach-dime-overload-ctrl] operated in a strictly peer-to-peer
+   mode.  Each node would only learn the load (and overload) information
+   from its immediate peers.
 
    [I-D.korhonen-dime-ovl] and [I-D.tschofenig-dime-dlba] are each
    effectively any-to-any.  That is, they each allowed any node to send
@@ -357,7 +361,7 @@ Internet-Draft              Abbreviated Title                 March 2015
    exclusively done on a peer-to-peer basis.  If the loaded node is an
    agent, for example, the load information is only useful to immediate
    peers.  Peer-to-peer transmission is the easiest to negotiate.  (See
-   Section 8)
+   Section 9)
 
    Any-to-Any transmission offers more flexibility, and could
    potentially cover the case where server selection is done by nodes
@@ -382,10 +386,6 @@ Internet-Draft              Abbreviated Title                 March 2015
 
    o  Aggregate Load -- Different paths via different agents may exist
       between a node making a peer selection decision and the final
-      destination of the request.  The least loaded destination may only
-      be reachable via certain peers.
-
-
 
 
 
@@ -393,6 +393,9 @@ Campbell, et al.        Expires September 4, 2015               [Page 7]
 
 Internet-Draft              Abbreviated Title                 March 2015
 
+
+      destination of the request.  The least loaded destination may only
+      be reachable via certain peers.
 
    o  Load of an agent plus load of a Diameter endpoint -- Different
       paths via different Diameter agents may exist between the node
@@ -431,17 +434,14 @@ Internet-Draft              Abbreviated Title                 March 2015
    Other scopes might also be considered based on the analysis of the
    use cases identified for the use of load information.
 
-7.  Load Information Semantics
+7.  Frequency of Sending Load Information
 
-   Both [I-D.tschofenig-dime-dlba] and [I-D.korhonen-dime-ovl] define
-   load level to be a range between zero and some maximum value, where
-   zero means no load at all and the max value means fully loaded.  The
-   former uses a range of 0-10, while the later uses 0-100
+   While it is true that a node always has a discrete load, a
+   determination needs to be made as to the frequency with which load
+   information is sent.
 
-   [I-D.roach-dime-overload-ctrl] treats load information as a strictly
-   relative weighting factor.  The weight is only meaningful when load-
-   balancing across multiple destinations.  That is, a maximum load
-   value does not necessarily imply that the node is cannot handle more
+
+
 
 
 
@@ -450,11 +450,63 @@ Campbell, et al.        Expires September 4, 2015               [Page 8]
 Internet-Draft              Abbreviated Title                 March 2015
 
 
+   This interacts with the method for transporting load information --
+   piggy-backed versus a dedicated application -- discussed in
+   Section 5.
+
+   With a piggy-backed approach the following alternatives exist:
+
+   1.  Send load information in every message.
+
+   2.  Send load information when it changes by some amount.  For
+       instance, only send a new load report when the load value has
+       changed by some percentage.
+
+   3.  Send load information every interval of time.  With this
+       approach, load information would be sent every some number of
+       seconds.
+
+   With alternatives 2 and 3 there would need to be a mechanism for the
+   sender of the load information to ensure that all consumers of the
+   load information receive the periodic load information.  This is more
+   straightforward if the load information is sent only to peers.  It
+   becomes more difficult if the load information is sent to non
+   adjacent nodes.  This might require option one if the load mechanism
+   supports sending of load information to non adjacent nodes.
+
+   If a dedicated application is used for transporting of load
+   information then part of the application definition would need to
+   define the frequency of sending load information.  Options 2 and 3 in
+   the above list would be the likely alternatives.
+
+8.  Load Information Semantics
+
+   Both [I-D.tschofenig-dime-dlba] and [I-D.korhonen-dime-ovl] define
+   load level to be a range between zero and some maximum value, where
+   zero means no load at all and the max value means fully loaded.  The
+   former uses a range of 0-10, while the later uses 0-100.
+
+   [I-D.roach-dime-overload-ctrl] treats load information as a strictly
+   relative weighting factor.  The weight is only meaningful when load-
+   balancing across multiple destinations.  That is, a maximum load
+   value does not necessarily imply that the node is cannot handle more
    traffic.  The load level scale is zero to 65535.  That scale was
    chosen to match the resolution of the weight field from a DNS SRV
    record, [RFC2782]
 
-8.  Is Negotiation of Support Needed?
+
+
+
+
+
+
+
+Campbell, et al.        Expires September 4, 2015               [Page 9]
+
+Internet-Draft              Abbreviated Title                 March 2015
+
+
+9.  Is Negotiation of Support Needed?
 
    The working group should discuss whether a load conveyance mechanism
    requires negotiation or declaration of support.  Several
@@ -493,24 +545,24 @@ Internet-Draft              Abbreviated Title                 March 2015
    origin of that information did not match the identity of the peer
    node.
 
-9.  Topology Scenarios
+10.  Topology Scenarios
 
    This section presents a number of Diameter topology scenarios, and
    discusses how load information might be used in each scenario.
    Nothing in this section should be construed to mean that a given
-
-
-
-Campbell, et al.        Expires September 4, 2015               [Page 9]
-
-Internet-Draft              Abbreviated Title                 March 2015
-
-
    scenario is in scope for this effort, or even a good idea.  Some
    scenarios might be considered as not relevant in practice and
    subsequently discarded.
 
-9.1.  No Agent
+
+
+
+Campbell, et al.        Expires September 4, 2015              [Page 10]
+
+Internet-Draft              Abbreviated Title                 March 2015
+
+
+10.1.  No Agent
 
    Figure 1 shows a simple client-server scenario, where a client picks
    from a set of candidate servers available for a particular realm and
@@ -533,7 +585,7 @@ Internet-Draft              Abbreviated Title                 March 2015
 
       Note: The use of dynamic connections needs to be considered.
 
-9.2.  Single Agent
+10.2.  Single Agent
 
    Figure 2 shows a client that sends requests to an agent.  The agent
    selects the request destination from a set of candidate servers,
@@ -550,25 +602,21 @@ Internet-Draft              Abbreviated Title                 March 2015
 
                       Figure 2: Simple Agent Scenario
 
-
-
-
-
-
-
-
-Campbell, et al.        Expires September 4, 2015              [Page 10]
-
-Internet-Draft              Abbreviated Title                 March 2015
-
-
-9.3.  Multiple Agents
+10.3.  Multiple Agents
 
    Figure 3 shows a client selecting between multiple agents, and each
    agent selecting from multiple servers.  The client selects an agent
    based on the load information received from each agent.  Each agent
    selects a server based on the load information received from its
    servers.
+
+
+
+
+Campbell, et al.        Expires September 4, 2015              [Page 11]
+
+Internet-Draft              Abbreviated Title                 March 2015
+
 
    This scenario adds a complication that one set of servers may be more
    loaded than the other set.  If, for example, S4 was the least loaded
@@ -600,7 +648,7 @@ Internet-Draft              Abbreviated Title                 March 2015
 
                    Figure 3: Multiple Agents and Servers
 
-9.4.  Linked Agents
+10.4.  Linked Agents
 
    Figure 4 shows a scenario similar to that of Figure 3, except that
    the agents are linked, so that A1 can forward a request to A2, and
@@ -610,14 +658,6 @@ Internet-Draft              Abbreviated Title                 March 2015
    This somewhat simplifies the complication from Figure 3, due to the
    fact that C does not necessarily need to choose a particular agent to
    reach a particular server.  But it creates a similar question of how,
-
-
-
-Campbell, et al.        Expires September 4, 2015              [Page 11]
-
-Internet-Draft              Abbreviated Title                 March 2015
-
-
    for example, A1 might know that S4 was less loaded than S1 or S3.
    Additionally, it creates the opportunity for sub-optimal request
    paths.  For example [C,A1,A2,S4] vs. [C,A2,S4].
@@ -626,6 +666,14 @@ Internet-Draft              Abbreviated Title                 March 2015
    set of servers and only forwards requests to another agent under
    exceptional circumstances.  For example, A1 might not forward
    requests to A2 unless both S1 and S3 are overloaded.  In this case,
+
+
+
+Campbell, et al.        Expires September 4, 2015              [Page 12]
+
+Internet-Draft              Abbreviated Title                 March 2015
+
+
    A1 might use the load information from S1 and S3 to select between
    those, and only consider the load information from A2 (and other
    connected agents) if it needs to divert requests to different agents.
@@ -666,21 +714,21 @@ Internet-Draft              Abbreviated Title                 March 2015
 
                           Figure 5: Linked Agents
 
-
-
-
-Campbell, et al.        Expires September 4, 2015              [Page 12]
-
-Internet-Draft              Abbreviated Title                 March 2015
-
-
-9.5.  Shared Server Pools
+10.5.  Shared Server Pools
 
    Figure 6 is similar to Figure 4, except that instead of a link
    between agents, each agent is linked to all servers.  (The links to
    each set of servers should be interpreted as a link to each server.
    The links are not shown separately due to the limitations of ASCII
    art.)
+
+
+
+
+Campbell, et al.        Expires September 4, 2015              [Page 13]
+
+Internet-Draft              Abbreviated Title                 March 2015
+
 
    In this scenario, each agent can select among all of the servers,
    based on the load information from the servers.  The client need only
@@ -696,7 +744,7 @@ Internet-Draft              Abbreviated Title                 March 2015
 
                        Figure 6: Shared Server Pools
 
-9.6.  Agent Chains
+10.6.  Agent Chains
 
    The scenario in Figure 7 is similar to that of Figure 3, except that,
    instead of the client possibly needing to select an agent that can
@@ -706,29 +754,20 @@ Internet-Draft              Abbreviated Title                 March 2015
    upstream loads into the load information they report downstream.
 
      ---A1---A3----S[1], S[2]...S[p]
-    /   | \ / |
-   C    |  x  |
-    \   | / \ |
+    /   | \ /
+   C    |  x
+    \   | / \
      ---A2---A4----S[p+1], S[p+2] ...S[n]
 
 
                           Figure 7: Agent Chains
 
-9.7.  Fully Meshed Layers
+10.7.  Fully Meshed Layers
 
    Figure 8 extends the scenario in Figure 6 by adding an extra layer of
    agents.  But since each layer of nodes can reach any node in the next
    layer, each node only needs to consider the load of its next-hop
    peer.
-
-
-
-
-
-Campbell, et al.        Expires September 4, 2015              [Page 13]
-
-Internet-Draft              Abbreviated Title                 March 2015
-
 
      ---A1---A3---S[1], S[2]...S[p]
     /   | \ / |\ /
@@ -739,7 +778,15 @@ Internet-Draft              Abbreviated Title                 March 2015
 
                             Figure 8: Full Mesh
 
-9.8.  Partitions
+
+
+
+Campbell, et al.        Expires September 4, 2015              [Page 14]
+
+Internet-Draft              Abbreviated Title                 March 2015
+
+
+10.8.  Partitions
 
    A Diameter network with multiple is said to be "partitioned" when
    only a subset of available servers can server a particular realm-
@@ -752,7 +799,7 @@ Internet-Draft              Abbreviated Title                 March 2015
    client, or an intermediate agent, may still be able to load-balance
    between servers inside a partition.
 
-9.9.  Active-Standby Nodes
+10.9.  Active-Standby Nodes
 
    The previous scenarios assume that traffic can be load balanced among
    all peers that are eligible to handle a request.  That is, the peers
@@ -763,7 +810,7 @@ Internet-Draft              Abbreviated Title                 March 2015
    diverted to a stand-by peer if one or more active peers becomes
    overloaded.
 
-9.10.  Addition and removal of Nodes
+10.10.  Addition and removal of Nodes
 
    When a Diameter node is added, the new node will start by advertising
    its load.  Downstream nodes will need to factor the new load
@@ -777,25 +824,24 @@ Internet-Draft              Abbreviated Title                 March 2015
    purpose, so outside a failure case), it might be appropriate to
    progressively reduce the traffic to this node by routing traffic to
    other nodes.  Simple load information (load percentage) would be not
-
-
-
-
-Campbell, et al.        Expires September 4, 2015              [Page 14]
-
-Internet-Draft              Abbreviated Title                 March 2015
-
-
    sufficient.  It should be determined if this use case is in the scope
    of the load control mechanism.
 
-10.  Security Considerations
+11.  Security Considerations
 
    Load information may be sensitive information in some cases.
    Depending on the mechanism. an unauthorized recipient might be able
    to infer the topology of a Diameter network from load information.
    Load information might be useful in identifying targets for Denial of
    Service (DoS) attacks, where a node known to be already heavily
+
+
+
+Campbell, et al.        Expires September 4, 2015              [Page 15]
+
+Internet-Draft              Abbreviated Title                 March 2015
+
+
    loaded might be a tempting target.  Load information might also be
    useful as feedback about the success of an ongoing DoS attack.
 
@@ -806,13 +852,13 @@ Internet-Draft              Abbreviated Title                 March 2015
    sends load information to non-peer nodes might require a transitive-
    trust model.
 
-11.  IANA Considerations
+12.  IANA Considerations
 
    This document makes no requests of IANA.
 
-12.  References
+13.  References
 
-12.1.  Normative References
+13.1.  Normative References
 
    [I-D.ietf-dime-ovli]
               Korhonen, J., Donovan, S., Campbell, B., and L. Morand,
@@ -825,22 +871,12 @@ Internet-Draft              Abbreviated Title                 March 2015
    [RFC7068]  McMurry, E. and B. Campbell, "Diameter Overload Control
               Requirements", RFC 7068, November 2013.
 
-12.2.  Informative References
+13.2.  Informative References
 
    [I-D.korhonen-dime-ovl]
               Korhonen, J. and H. Tschofenig, "The Diameter Overload
               Control Application (DOCA)", draft-korhonen-dime-ovl-01
               (work in progress), February 2013.
-
-
-
-
-
-
-Campbell, et al.        Expires September 4, 2015              [Page 15]
-
-Internet-Draft              Abbreviated Title                 March 2015
-
 
    [I-D.roach-dime-overload-ctrl]
               Roach, A. and E. McMurry, "A Mechanism for Diameter
@@ -851,6 +887,16 @@ Internet-Draft              Abbreviated Title                 March 2015
               Tschofenig, H., "The Diameter Load Balancing Application
               (DLBA)", draft-tschofenig-dime-dlba-00 (work in progress),
               July 2013.
+
+
+
+
+
+
+Campbell, et al.        Expires September 4, 2015              [Page 16]
+
+Internet-Draft              Abbreviated Title                 March 2015
+
 
    [RFC2782]  Gulbrandsen, A., Vixie, P., and L. Esibov, "A DNS RR for
               specifying the location of services (DNS SRV)", RFC 2782,
@@ -869,7 +915,7 @@ Authors' Addresses
 
    Steve Donovan (editor)
    Oracle
-   7460 Warren Parkway
+   7460 Warren Parkway # 300
    Frisco, Texas  75034
    United States
 
@@ -893,4 +939,14 @@ Authors' Addresses
 
 
 
-Campbell, et al.        Expires September 4, 2015              [Page 16]
+
+
+
+
+
+
+
+
+
+
+Campbell, et al.        Expires September 4, 2015              [Page 17]
